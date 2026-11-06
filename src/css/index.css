@@ -1,0 +1,137 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+:root {
+  font-family: 'Inter', sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  /* FRAME dark theme */
+  --color-page: #0d0d0f;
+  --color-surface: #141417;
+  --color-surface-2: #1c1c21;
+  --color-surface-3: #242429;
+  --color-ink: #f0eef0;
+  --color-ink-muted: #9998a3;
+  --color-ink-subtle: #5c5b66;
+  --color-border: rgba(255,255,255,0.08);
+  --color-border-strong: rgba(255,255,255,0.14);
+
+  /* Red accent */
+  --color-primary: #dc2626;
+  --color-primary-hover: #ef4444;
+  --color-primary-glow: rgba(239, 68, 68, 0.22);
+  --color-primary-soft: rgba(239, 68, 68, 0.12);
+
+  /* Secondary accent */
+  --color-accent-amber: #f5a623;
+
+  /* Typography scale */
+  --text-xs: 0.72rem;
+  --text-sm: 0.82rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-3xl: 1.875rem;
+  --text-4xl: 2.25rem;
+
+  color-scheme: dark;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  overflow-x: hidden;
+}
+
+body {
+  width: 100%;
+  min-height: 100vh;
+  color: var(--color-ink);
+  background-color: var(--color-page);
+}
+
+#root {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+a {
+  font-weight: 500;
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.18s;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  line-height: 1.2;
+  font-weight: 700;
+}
+
+button {
+  border-radius: 8px;
+  border: 1px solid var(--color-border);
+  padding: 0.55em 1.1em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  color: var(--color-ink);
+  background-color: transparent;
+  cursor: pointer;
+  transition: border-color 0.2s, background-color 0.2s, color 0.2s, box-shadow 0.2s;
+}
+
+button:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+/* Utility */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Favorite toast */
+.favorite-toast {
+  position: fixed;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.75rem 1.4rem;
+  border-radius: 100px;
+  background: var(--color-surface-3);
+  border: 1px solid var(--color-border-strong);
+  color: var(--color-ink);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  white-space: nowrap;
+}
