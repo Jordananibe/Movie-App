@@ -33,7 +33,7 @@ const genreNames = {
 }
 
 /* ── Poster Card ─────────────────────────── */
-function PosterCard({ movie, onToggleWatchlist, isInWatchlist }) {
+function PosterCard({ movie }) {
   const year = movie.release_date?.slice(0, 4)
   const genre = genreNames[movie.genre_ids?.[0]] || ""
   const rating = movie.vote_average?.toFixed(1)
@@ -125,7 +125,7 @@ function RecoCard({ movie, reason, onToggleWatchlist, isInWatchlist }) {
 }
 
 /* ── Section ─────────────────────────────── */
-function MovieSection({ title, subtitle, movies, loading, sectionAction, sectionActionLabel, onToggleWatchlist, isInWatchlist }) {
+function MovieSection({ title, subtitle, movies, loading, error, sectionAction, sectionActionLabel }) {
   const rowRef = useRef(null)
 
   const scroll = (dir) => {
@@ -157,7 +157,9 @@ function MovieSection({ title, subtitle, movies, loading, sectionAction, section
         </div>
       </div>
 
-      {loading ? (
+      {error ? (
+        <p role="alert" style={{ padding: "1.5rem", color: "var(--color-ink-muted)" }}>{error}</p>
+      ) : loading ? (
         <div className="poster-row" aria-label="Loading movies" role="status">
           {Array.from({ length: 7 }).map((_, i) => (
             <div key={i} className="poster-card" aria-hidden="true">
@@ -170,27 +172,24 @@ function MovieSection({ title, subtitle, movies, loading, sectionAction, section
           ))}
           <span className="visually-hidden">Loading movies…</span>
         </div>
-      ) : (
+      ) : movies.length > 0 ? (
         <div className="poster-row" ref={rowRef}>
           {movies.map((movie) => (
-            <PosterCard
-              key={movie.id}
-              movie={movie}
-              onToggleWatchlist={onToggleWatchlist}
-              isInWatchlist={isInWatchlist(movie.id)}
-            />
+            <PosterCard key={movie.id} movie={movie} />
           ))}
         </div>
+      ) : (
+        <p role="status" style={{ padding: "1.5rem", color: "var(--color-ink-muted)" }}>No movies are available right now.</p>
       )}
     </section>
   )
 }
 
 /* ── Hero ────────────────────────────────── */
-function Hero({ spotlight, loading, onToggleWatchlist, isInWatchlist }) {
+function Hero({ spotlight, loading, error, onToggleWatchlist, isInWatchlist }) {
   const navigate = useNavigate()
 
-  if (loading || !spotlight) {
+  if (loading) {
     return (
       <div className="hero-skeleton" aria-hidden="true">
         <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem", maxWidth: "440px" }}>
@@ -204,6 +203,14 @@ function Hero({ spotlight, loading, onToggleWatchlist, isInWatchlist }) {
             <div className="skel" style={{ height: "2.4rem", width: "130px", borderRadius: "8px" }} />
           </div>
         </div>
+      </div>
+    )
+  }
+
+  if (!spotlight) {
+    return (
+      <div className="hero-skeleton" role={error ? "alert" : "status"}>
+        {error || "No featured movie is available right now."}
       </div>
     )
   }
@@ -299,15 +306,19 @@ function Home({ watchlist, onToggleWatchlist }) {
 
   const [spotlight, setSpotlight] = useState(null)
   const [spotlightLoading, setSpotlightLoading] = useState(true)
+  const [spotlightError, setSpotlightError] = useState("")
 
   const [trending, setTrending] = useState([])
   const [trendingLoading, setTrendingLoading] = useState(true)
+  const [trendingError, setTrendingError] = useState("")
 
   const [popular, setPopular] = useState([])
   const [popularLoading, setPopularLoading] = useState(true)
+  const [popularError, setPopularError] = useState("")
 
   const [topRated, setTopRated] = useState([])
   const [topRatedLoading, setTopRatedLoading] = useState(true)
+  const [topRatedError, setTopRatedError] = useState("")
 
   const isInWatchlist = useCallback(
     (id) => watchlist.some((m) => m.id === id),
@@ -319,22 +330,30 @@ function Home({ watchlist, onToggleWatchlist }) {
 
     getSpotlightMovie()
       .then((movie) => { if (!cancelled) setSpotlight(movie) })
-      .catch(() => {})
+      .catch((requestError) => {
+        if (!cancelled) setSpotlightError(requestError.message || "Unable to load the featured movie.")
+      })
       .finally(() => { if (!cancelled) setSpotlightLoading(false) })
 
     getTrendingMovies("week")
       .then(({ movies }) => { if (!cancelled) setTrending(movies.slice(0, 12)) })
-      .catch(() => {})
+      .catch((requestError) => {
+        if (!cancelled) setTrendingError(requestError.message || "Unable to load trending movies.")
+      })
       .finally(() => { if (!cancelled) setTrendingLoading(false) })
 
     getPopularMovies()
       .then(({ movies }) => { if (!cancelled) setPopular(movies.slice(0, 12)) })
-      .catch(() => {})
+      .catch((requestError) => {
+        if (!cancelled) setPopularError(requestError.message || "Unable to load popular movies.")
+      })
       .finally(() => { if (!cancelled) setPopularLoading(false) })
 
     getTopRatedMovies()
       .then(({ movies }) => { if (!cancelled) setTopRated(movies.slice(0, 6)) })
-      .catch(() => {})
+      .catch((requestError) => {
+        if (!cancelled) setTopRatedError(requestError.message || "Unable to load recommendations.")
+      })
       .finally(() => { if (!cancelled) setTopRatedLoading(false) })
 
     return () => { cancelled = true }
@@ -355,6 +374,7 @@ function Home({ watchlist, onToggleWatchlist }) {
       <Hero
         spotlight={spotlight}
         loading={spotlightLoading}
+        error={spotlightError}
         onToggleWatchlist={onToggleWatchlist}
         isInWatchlist={isInWatchlist}
       />
@@ -364,10 +384,9 @@ function Home({ watchlist, onToggleWatchlist }) {
         subtitle="The films everyone is talking about."
         movies={trending}
         loading={trendingLoading}
+        error={trendingError}
         sectionAction={() => navigate("/discover")}
         sectionActionLabel="View all"
-        onToggleWatchlist={onToggleWatchlist}
-        isInWatchlist={isInWatchlist}
       />
 
       <MovieSection
@@ -375,10 +394,9 @@ function Home({ watchlist, onToggleWatchlist }) {
         subtitle="Great stories. Worth discovering, and rediscovering."
         movies={popular}
         loading={popularLoading}
+        error={popularError}
         sectionAction={() => navigate("/discover")}
         sectionActionLabel="View all"
-        onToggleWatchlist={onToggleWatchlist}
-        isInWatchlist={isInWatchlist}
       />
 
       {/* Recommended for you */}
@@ -407,7 +425,9 @@ function Home({ watchlist, onToggleWatchlist }) {
             ))}
             <span className="visually-hidden">Loading recommendations…</span>
           </div>
-        ) : (
+        ) : topRatedError ? (
+          <p role="alert" style={{ padding: "1.5rem", color: "var(--color-ink-muted)" }}>{topRatedError}</p>
+        ) : recommended.length > 0 ? (
           <div className="reco-grid">
             {recommended.map((movie, i) => (
               <RecoCard
@@ -419,6 +439,8 @@ function Home({ watchlist, onToggleWatchlist }) {
               />
             ))}
           </div>
+        ) : (
+          <p role="status" style={{ padding: "1.5rem", color: "var(--color-ink-muted)" }}>No recommendations are available right now.</p>
         )}
       </section>
     </div>

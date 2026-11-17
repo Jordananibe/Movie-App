@@ -1,16 +1,39 @@
-# React + Vite
+# FRAME
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+FRAME is a React movie discovery app powered by the TMDB API.
 
-Currently, two official plugins are available:
+## Requirements
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- Node.js and npm
+- A TMDB API key
 
-## React Compiler
+## Local development
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+1. Install dependencies:
 
-## Expanding the ESLint configuration
+   ```sh
+   npm install
+   ```
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+2. Create `.env.local` in the project root and set:
+
+   ```env
+   VITE_TMDB_API_KEY=your_tmdb_api_key
+   ```
+
+3. Start the development server:
+
+   ```sh
+   npm run dev
+   ```
+
+Vite exposes `VITE_` variables in the browser bundle. Treat the TMDB key as
+public; do not put private credentials in a `VITE_` variable.
+
+## Build and deploy
+
+Run `npm run build` to create the production site in `dist/`. Set
+`VITE_TMDB_API_KEY` in the deployment provider's environment settings.
+
+The included Vercel configuration rewrites client-side routes to the app entry
+point so direct visits to routes such as `/discover` work on static hosting.

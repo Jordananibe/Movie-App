@@ -9,25 +9,27 @@ import { Routes, Route } from "react-router-dom"
 import NavBar from "./components/NavBar"
 import Footer from "./components/Footer"
 
+const readStoredWatchlist = () => {
+  try {
+    const saved = JSON.parse(localStorage.getItem("frameWatchlist") || "[]")
+    return Array.isArray(saved) ? saved : []
+  } catch {
+    return []
+  }
+}
 
 function App() {
   const toastRef = useRef(null)
   const toastTimerRef = useRef(null)
   const [toastMessage, setToastMessage] = useState("")
 
-  const [watchlist, setWatchlist] = useState(() => {
-    try {
-      const saved = JSON.parse(localStorage.getItem("frameWatchlist") || "[]")
-      return Array.isArray(saved) ? saved : []
-    } catch {
-      return []
-    }
-  })
+  const [watchlist, setWatchlist] = useState(readStoredWatchlist)
 
   const [watchedIds, setWatchedIds] = useState(() => {
     try {
       const saved = JSON.parse(localStorage.getItem("frameWatchedMovies") || "[]")
-      return Array.isArray(saved) ? saved : []
+      const watchlistIds = new Set(readStoredWatchlist().map((movie) => movie.id))
+      return Array.isArray(saved) ? saved.filter((id) => watchlistIds.has(id)) : []
     } catch {
       return []
     }
@@ -35,13 +37,6 @@ function App() {
 
   useEffect(() => {
     localStorage.setItem("frameWatchlist", JSON.stringify(watchlist))
-  }, [watchlist])
-
-  useEffect(() => {
-    setWatchedIds((current) => {
-      const watchlistIds = new Set(watchlist.map((movie) => movie.id))
-      return current.filter((id) => watchlistIds.has(id))
-    })
   }, [watchlist])
 
   useEffect(() => {

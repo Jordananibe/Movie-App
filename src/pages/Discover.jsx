@@ -191,6 +191,7 @@ function Discover({ watchlist, onToggleWatchlist }) {
   const [sort, setSort] = useState("popularity.desc")
   const [activeGenre, setActiveGenre] = useState("") // "" = all
   const [genres, setGenres] = useState([])
+  const [genreError, setGenreError] = useState("")
 
   const [movies, setMovies] = useState([])
   const [page, setPage] = useState(1)
@@ -215,9 +216,17 @@ function Discover({ watchlist, onToggleWatchlist }) {
 
   // Load genres for pills
   useEffect(() => {
+    let cancelled = false
+
     getMovieGenres()
-      .then((all) => setGenres(all.filter((g) => PILL_GENRE_IDS.includes(g.id))))
-      .catch(() => {})
+      .then((all) => {
+        if (!cancelled) setGenres(all.filter((g) => PILL_GENRE_IDS.includes(g.id)))
+      })
+      .catch((requestError) => {
+        if (!cancelled) setGenreError(requestError.message || "Unable to load movie genres.")
+      })
+
+    return () => { cancelled = true }
   }, [])
 
   // Load the selected page whenever search, genre, sort, or page changes.
@@ -345,6 +354,9 @@ function Discover({ watchlist, onToggleWatchlist }) {
           </button>
         ))}
       </div>
+      {genreError && (
+        <p role="alert" style={{ padding: "0 1.5rem", color: "var(--color-ink-muted)" }}>{genreError}</p>
+      )}
 
       {/* Results count */}
       {!loading && !error && (

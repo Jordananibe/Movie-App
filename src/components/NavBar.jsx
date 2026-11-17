@@ -3,13 +3,13 @@ import { Link, useLocation } from "react-router-dom";
 import "../css/Navbar.css"
 
 function NavBar() {
+  const location = useLocation()
+  return <NavBarContent key={location.pathname} pathname={location.pathname} />
+}
+
+function NavBarContent({ pathname }) {
   const navRef = useRef(null)
   const [menuOpen, setMenuOpen] = useState(false)
-  const location = useLocation()
-
-  useEffect(() => {
-    setMenuOpen(false)
-  }, [location.pathname])
 
   useEffect(() => {
     if (!menuOpen) return
@@ -19,8 +19,8 @@ function NavBar() {
   }, [menuOpen])
 
   const isActive = (path) => {
-    if (path === "/") return location.pathname === "/"
-    return location.pathname.startsWith(path)
+    if (path === "/") return pathname === "/"
+    return pathname.startsWith(path)
   }
 
   return (
